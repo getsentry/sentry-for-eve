@@ -10,6 +10,7 @@ differs.
 | App | What it is | Result |
 | --- | --- | --- |
 | `v11/sentry-sdk` | `Sentry.init`, nothing else. | Works. One trace, errors, environment. No eve session or step data. |
+| `v11/sentry-sdk-hook` | `Sentry.init` plus a hand-written `agent/hooks/sentry.ts` that sets the eve session id as the conversation id. | Works. Same as above, and the session's turns group into one conversation. |
 | `v11/eve-otlp` | What `eve add instrumentation/sentry` and both docs pages give you. | Works. One trace with eve's session and steps. No errors, no environment without an extra attribute. |
 | `v11/both-broken` | The two above together, as a user following both quick starts would. | Two unjoined traces per turn. |
 | `v11/both-fixed-by-hand` | The code a user must write today to make both agree. | One trace. Needs the integration name and the callback form of `integrations`; Sentry's own spans still land on other trace ids. |
