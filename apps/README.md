@@ -1,27 +1,29 @@
 # Apps
 
 Each app is one way to put Sentry on an eve agent, complete on its own: its
-own `package.json`, lockfile, `.env.local`, and one `agent/instrumentation.ts`.
-The agent itself is identical in every app; only `agent/instrumentation.ts`
-differs.
+own `package.json`, lockfile, `.env.local`, and its instrumentation files.
+The agent itself is identical in every app; only the instrumentation differs.
+"Works" in the tables means every `gen_ai` span has inputs, outputs and a
+conversation id, checked with `scripts/traces.sh`, not just that spans arrive.
 
 ## v11 (`@sentry/node` 11)
 
 | App | What it is | Result |
 | --- | --- | --- |
-| `v11/sentry-sdk` | `Sentry.init`, nothing else. | Works. One trace, errors, environment. No eve session or step data. |
-| `v11/sentry-sdk-hook` | `Sentry.init` plus a hand-written `agent/hooks/sentry.ts` that sets the eve session id as the conversation id. | Works. Same as above, and the session's turns group into one conversation. |
-| `v11/eve-otlp` | What `eve add instrumentation/sentry` and both docs pages give you. | Works. One trace with eve's session and steps. No errors, no environment without an extra attribute. |
-| `v11/both-broken` | The two above together, as a user following both quick starts would. | Two unjoined traces per turn. |
-| `v11/both-fixed-by-hand` | The code a user must write today to make both agree. | One trace. Needs the integration name and the callback form of `integrations`; Sentry's own spans still land on other trace ids. |
+| `v11/sentry-sdk` | `Sentry.init`, nothing else. | One trace per turn, errors, environment. No inputs, no outputs, no conversation id. No eve session or step data. |
+| `v11/sentry-sdk-hook` | `Sentry.init` with `vercelAIIntegration({ recordInputs, recordOutputs })` plus a hand-written `agent/hooks/sentry.ts` that sets the eve session id as the conversation id. | Works. One trace per turn with inputs, outputs and conversation id on every span; the session's turns group into one conversation. |
+| `v11/eve-otlp` | What `eve add instrumentation/sentry` and both docs pages give you. | One trace per turn with eve's session and steps. No inputs, no outputs, no conversation id. No errors, no environment without an extra attribute. |
+| `v11/eve-otlp-provider` | The same exporter in eve's experimental provider layout with a trace policy and a conversation-id span processor. | Works. One trace per session with inputs, outputs and conversation id on every span. No errors. |
+| `v11/both-broken` | `v11/sentry-sdk` and `v11/eve-otlp` together, as a user following both quick starts would. | Two unjoined traces per turn, no content or conversation id on either. |
+| `v11/both-fixed-by-hand` | The code a user must write today to make both agree. | One trace per turn, no content or conversation id. Needs the integration name and the callback form of `integrations`; Sentry's own spans still land on other trace ids. |
 
 ## v10 (`@sentry/node` 10)
 
 | App | What it is | Result |
 | --- | --- | --- |
-| `v10/sentry-sdk` | `Sentry.init`, nothing else. | Works. Same as v11. |
-| `v10/eve-otlp` | What `eve add instrumentation/sentry` and both docs pages give you. | Works. Same as v11. |
-| `v10/both` | eve's exporter plus `Sentry.init` with `skipOpenTelemetrySetup: true`. | One eve trace. Without the flag Sentry takes over OpenTelemetry and eve's exporter is silently ignored. |
+| `v10/sentry-sdk` | `Sentry.init`, nothing else. | Same as v11: no inputs, outputs or conversation id. |
+| `v10/eve-otlp` | What `eve add instrumentation/sentry` and both docs pages give you. | Same as v11: no inputs, outputs or conversation id. |
+| `v10/both` | eve's exporter plus `Sentry.init` with `skipOpenTelemetrySetup: true`. | One eve trace, no content or conversation id. Without the flag Sentry takes over OpenTelemetry and eve's exporter is silently ignored. |
 
 ## Run one
 

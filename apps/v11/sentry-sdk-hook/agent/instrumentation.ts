@@ -9,7 +9,10 @@ export default defineInstrumentation({
       dsn: process.env.SENTRY_DSN,
       environment: ENVIRONMENT,
       tracesSampleRate: 1.0,
-      dataCollection: { genAI: { inputs: true, outputs: true } },
+      // eve passes recordInputs/recordOutputs: false on every AI SDK call
+      // unless the channel audience is public. A per-call flag outranks
+      // dataCollection.genAI, so only the integration option restores content.
+      integrations: [Sentry.vercelAIIntegration({ recordInputs: true, recordOutputs: true })],
     });
   },
 });

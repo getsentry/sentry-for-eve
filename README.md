@@ -65,6 +65,33 @@ For a v11 user today:
   the callback form of `integrations`, and still does not join Sentry's own
   spans to eve's trace.
 
+## Content and conversations (measured 2026-09-10)
+
+The baseline above counted spans by op and called every path "works". It
+did not look at what the spans carry. A user reported that following the
+docs gives no inputs, no outputs and no conversation ids, and that is true
+for every setup above, on both `eve dev` and `eve start`. `scripts/traces.sh`
+now reports content and conversation id per span, and every run sends two
+turns into one session.
+
+Root cause: eve records inputs and outputs only when the channel audience is
+`public`. `eve dev` and `eve invoke` report `unknown`. eve then passes
+`recordInputs: false` on every AI SDK call, which the Sentry SDK ranks above
+`dataCollection.genAI`, and redacts its own OTel spans the same way. The
+legacy `recordInputs`/`recordOutputs` flags never apply.
+
+What restores it, one app per path:
+
+- SDK path, `v11/sentry-sdk-hook`: `Sentry.vercelAIIntegration({ recordInputs:
+  true, recordOutputs: true })` in `Sentry.init`, plus a hook that calls
+  `Sentry.setConversationId(ctx.session.id)`. Every `gen_ai` span then has
+  content and the session id; one trace per turn.
+- OTLP path, `v11/eve-otlp-provider`: eve's experimental provider layout
+  with `otel({ tracePolicy: () => ({ emit: true, recordInputs: true,
+  recordOutputs: true }) })`, plus a span processor that copies eve's
+  `gen_ai.conversation.id` from `invoke_agent` onto every span. One trace
+  per session, no `agent_step` spans.
+
 Step 2 writes down that fix by hand as a user sees it. Step 3 prototypes what
 removes it: `Sentry.eveIntegration()`, a Sentry provider on eve's side, or an
 eve runtime hook Sentry subscribes to. Each prototype is a new app here.
