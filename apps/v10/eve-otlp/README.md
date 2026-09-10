@@ -10,5 +10,6 @@ Measured 2026-09-09 with eve 0.52.4. One turn: "What is the weather in Paris?"
 | --- | --- |
 | `eve dev` | One trace per turn, 7 `gen_ai` spans from eve. [`2c7187f99302`](https://sentry-developer-experience.sentry.io/explore/traces/trace/2c7187f9930215304479c3f64eed7733/?project=4512057016778752) |
 | `eve start` | Same. [`f0c4c336a266`](https://sentry-developer-experience.sentry.io/explore/traces/trace/f0c4c336a266f7c053227203bcba029b/?project=4512057016778752) |
+| `eve deploy` | Deployed to [https://sentry-for-eve-v10-eve-otlp.sentry.dev](https://sentry-for-eve-v10-eve-otlp.sentry.dev) on Vercel team `sentry`. Not invoked yet: Deployment Protection rejects `eve invoke` until a Protection Bypass for Automation secret exists. |
 
 Without the attribute the environment is empty. No errors, no release.

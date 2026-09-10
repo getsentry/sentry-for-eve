@@ -34,3 +34,15 @@ scripts/traces.sh v11/sentry-sdk dev
 `scripts/matrix.sh` runs every app under both commands, one at a time. They
 all report into the same Sentry project and `scripts/traces.sh` finds a run's
 traces by its time window.
+
+## Deploy one
+
+```sh
+scripts/deploy.sh v11/sentry-sdk
+```
+
+This creates the Vercel project `sentry-for-eve-v11-sentry-sdk` on team
+`sentry`, uploads `.env.local` as production variables, and runs `eve deploy`.
+The team protects every deployment, so `eve invoke -u <url>` needs
+`VERCEL_AUTOMATION_BYPASS_SECRET` set to a Protection Bypass for Automation
+secret from the project's Deployment Protection settings.
