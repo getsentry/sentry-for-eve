@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Runs every app under both eve commands, one run at a time.
+set -uo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+for app in $(ls apps | grep -v README); do
+  for mode in dev start; do
+    mkdir -p "apps/$app/.eve/run/$mode"
+    log="apps/$app/.eve/run/$mode/run.log"
+    if scripts/run.sh "$app" "$mode" >"$log" 2>&1; then
+      echo "$app $mode OK"
+    else
+      echo "$app $mode FAIL: $(grep -m1 -E 'SERVER DIED|BUILD FAILED' "$log" || echo "see $log")"
+    fi
+  done
+done
