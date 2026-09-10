@@ -51,32 +51,20 @@ Every app has its own `package.json`, lockfile and `README.md`. The
 
 ## Baseline (step 1, measured 2026-09-09)
 
-Every app starts and answers under both `eve dev` and `eve start`. What
-differs is what Sentry receives for one turn. Details and trace links are in
-each app's README.
+Six apps under `apps/`, see [apps/README.md](apps/README.md). Every one starts
+and answers under both `eve dev` and `eve start`; what differs is what Sentry
+receives. Trace links are in each app's README.
 
-| App | Traces per turn | Who records the turn | Environment | Errors on the trace |
-| --- | --- | --- | --- | --- |
-| `v10-sentry-sdk` | 1 | Sentry AI SDK integration | yes | yes |
-| `v10-eve-otlp` | 1 | eve | only with an extra attribute | no SDK |
-| `v10-eve-otlp-and-sentry-sdk` | 1 | Sentry; eve's exporter silently ignored | yes | yes |
-| `v10-eve-otlp-and-sentry-sdk-no-otel` | 1 | eve | attribute | no, separate trace |
-| `v10-eve-spans-through-sentry-sdk` | 8 | eve, but no `gen_ai` ops | yes | yes |
-| `v11-sentry-sdk` | 1 | Sentry AI SDK integration | yes | yes |
-| `v11-eve-otlp` | 1 | eve | only with an extra attribute | no SDK |
-| `v11-eve-otlp-and-sentry-sdk` | 2 | both, unjoined | yes | no, separate trace |
-| `v11-eve-otlp-and-sentry-errors` | 1 | eve | attribute | not proven, HTTP spans are on separate traces |
-| `v11-eve-otlp-and-sentry-otel` | 1, turn in it twice | Sentry, twice; eve's exporter silently ignored | yes | yes |
-
-What this says about v11:
+For a v11 user today:
 
 - `Sentry.init` alone is the shortest path and gives one correct trace.
-  It loses everything eve knows: session id, `agent.session`, `agent_step`.
+  It loses everything eve knows: session id, steps, tool approvals.
 - eve's exporter alone gives eve's trace and nothing from Sentry: no errors,
   no environment unless the user adds an attribute.
-- Both together is the double. The manual fix needs the integration name and
+- Both together is the double. The fix by hand needs the integration name and
   the callback form of `integrations`, and still does not join Sentry's own
   spans to eve's trace.
 
-Step 2 is to write down the manual v11 path as a user sees it. Step 3 is to
-prototype what removes that code.
+Step 2 writes down that fix by hand as a user sees it. Step 3 prototypes what
+removes it: `Sentry.eveIntegration()`, a Sentry provider on eve's side, or an
+eve runtime hook Sentry subscribes to. Each prototype is a new app here.
