@@ -51,7 +51,7 @@ Every app has its own `package.json`, lockfile and `README.md`. The
 
 ## Baseline (step 1, measured 2026-09-09)
 
-Six apps under `apps/`, see [apps/README.md](apps/README.md). Every one starts
+Seven apps under `apps/`, see [apps/README.md](apps/README.md). Every one starts
 and answers under both `eve dev` and `eve start`; what differs is what Sentry
 receives. Trace links are in each app's README.
 

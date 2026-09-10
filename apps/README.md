@@ -19,6 +19,7 @@ differs.
 | App | What it is | Result |
 | --- | --- | --- |
 | `v10/sentry-sdk` | `Sentry.init`, nothing else. | Works. Same as v11. |
+| `v10/eve-otlp` | What `eve add instrumentation/sentry` and both docs pages give you. | Works. Same as v11. |
 | `v10/both` | eve's exporter plus `Sentry.init` with `skipOpenTelemetrySetup: true`. | One eve trace. Without the flag Sentry takes over OpenTelemetry and eve's exporter is silently ignored. |
 
 ## Run one
