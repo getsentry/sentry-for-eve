@@ -39,6 +39,10 @@ done
 
 npx eve invoke -u "$URL" "What is the weather in Paris?" | tee "$OUT/turn.json"
 echo
+# Second turn in the same session. Multi-turn sessions must look as good as
+# single-turn ones, so every run has both.
+npx eve invoke --resume -u "$URL" "And in Berlin?" < "$OUT/turn.json" | tee "$OUT/turn2.json"
+echo
 # Give the exporters time to flush before the server goes away.
 sleep "${FLUSH_SECONDS:-10}"
 # scripts/traces.sh uses this window to find the run's traces in Sentry.

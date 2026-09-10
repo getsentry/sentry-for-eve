@@ -32,6 +32,9 @@ scripts/run.sh v11/sentry-sdk start
 scripts/traces.sh v11/sentry-sdk dev
 ```
 
+Every run sends two turns into one session, so multi-turn behaviour is
+measured every time. Results recorded before 2026-09-10 were single-turn.
+
 `scripts/matrix.sh` runs every app under both commands, one at a time. They
 all report into the same Sentry project and `scripts/traces.sh` finds a run's
 traces by its time window.
